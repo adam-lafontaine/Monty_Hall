@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" 
+integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" 
+crossorigin="anonymous">
+
+
+
+</head>
+<body>
+
+
+<div class="container">
+    <h2>Monty Hall Simulation</h2>           
+    <table class="table table-striped">
+        <thead>
+            <tr id="title_row">
+                <th>Door</th>
+                <th>Value</th>
+                <th>Count</th>
+                <th>Percent</th>
+            </tr>
+        </thead>
+        <tbody id="results_table">
+            
+        </tbody>
+    </table>
+</div>
+
+
+
+<script>
+
+// UI element ids
+const TABLE_ID = "results_table";
+
+const COLUMNS = ["number", "value", "count", "percent"];
+
+let num_doors = 3;
+let iterations = 3000;
+
+// run code
+main(num_doors, iterations);
+
+
+//================ HELPERS ======================
+
+function main(num_doors, iterations){
+
+    buildTable(num_doors);
+
+    let door_values = {};
+    let door_counts = createCounts(num_doors);
+
+    door_values = getDoorValues(num_doors);
+    
+    for(let i = 1; i <= iterations; i++){
+        
+        door_values = getDoorValues(num_doors);
+        door_counts = updateCounts(door_counts, door_values);
+    }
+
+    let door_percents = createPercents(door_counts);
+    //writeValues(door_values);
+    writeValues(door_counts);
+    writeValues(door_percents);
+}
+
+function buildTable(num){
+    for(i = 1; i <= num; i++){
+        buildRow(i);          
+    }
+
+}
+
+function buildRow(row_num){
+    let row_id = rowId(row_num);
+    let row = create('tr', row_id);
+    for(col in COLUMNS){       
+
+        let cell_id = idKey(COLUMNS[col], row_num);
+        let cell = create('td', cell_id);
+
+        if(COLUMNS[col] === "number"){
+            cell.innerHTML = row_num;
+        }
+
+        row.appendChild(cell);
+    }   
+
+    let table = document.getElementById(TABLE_ID);
+    table.appendChild(row);
+}
+
+function writeValues(obj){
+
+    for(key in obj){
+        let ele = document.getElementById(key);
+        ele.innerHTML = obj[key];
+    }
+}
+
+function createPercents(counts){
+
+    let perc = {};
+    let total = 0;
+    
+    let row = 0;
+    for (key in counts) {
+        row++;
+        let count_key = idKey("count", row);
+        if (counts.hasOwnProperty(count_key)) {
+            total += counts[count_key];
+            
+        }
+    }    
+
+    row = 0;
+    for (key in counts) {
+        row++;
+        let count_key = idKey("count", row);
+        let perc_key = idKey("percent", row);
+        if (counts.hasOwnProperty(count_key)) {
+            perc[perc_key] = total > 0 ? counts[count_key] / total * 100 : 0;            
+        }
+    }
+
+    return perc;
+}
+
+function createCounts(num){
+    let obj = {};
+
+    for(let i = 1; i <= num; i++){
+        let key = idKey("count", i);
+        obj[key] = 0;
+    }
+
+    return obj;
+}
+
+function updateCounts(counts, values){
+
+    let row = 0;
+    for (key in counts) {
+        row++;
+        let count_key = idKey("count", row);
+        let value_key = idKey("value", row);
+        if (counts.hasOwnProperty(count_key) && values.hasOwnProperty(value_key)) {
+            if(values[value_key])
+                counts[count_key]++;
+        }
+    }
+
+    return counts;
+}
+
+// puts a prize behind one of the doors
+function getDoorValues(num) {
+
+    let values = {};
+
+    for(let i = 1; i <= num; i++){
+        let key = idKey("value", i);
+        values[key] = false;
+    }
+
+    // sets a random door to true
+    let rand_key = idKey("value", rand(1, num));
+    values[rand_key] = true;
+
+    return values;
+}
+
+// random number between first and second inclusive
+function rand(first, second){
+
+    if(first === second)
+        return first;
+
+    let min = Math.min(first, second);
+    let max = Math.max(first, second);
+
+    return Math.floor((Math.random() * max) + min);
+}
+
+function create(e_type, id){
+    let element = document.createElement(e_type);
+    element.setAttribute('id', id);
+
+    return element;
+}
+
+function rowId(num){
+    return "row_" + num;
+}
+
+function idKey(type, num){
+    return type + "_" + num;
+}
+
+</script>
+
+</body>
+</html>
