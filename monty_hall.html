@@ -14,19 +14,30 @@ crossorigin="anonymous">
 
 
 <div class="container">
-    <h2>Monty Hall Simulation</h2>           
+    <h3>Probability Table</h3>
+    <div class="form-group row">
+        <div class="col-xs-2">
+            <label for="txt_num_doors"># of doors</label>
+            <input type="text" class="form-control" id="txt_num_doors" value="3" >
+        </div>
+        <div class="col-xs-2">
+            <label for="txt_num_iterations"># of iterations</label>
+            <input type="text" class="form-control" id="txt_num_iterations" value="3000" >
+        </div>
+        <div class="col-xs-1">
+            <label style="color: #fff" >spacer</label>
+            <button type="button" class="btn btn-primary" id="btn_build_table" onclick="fillTable()">Go</button>
+        </div>
+    </div>
     <table class="table table-striped">
         <thead>
             <tr id="title_row">
                 <th>Door</th>
-                <th>Value</th>
                 <th>Count</th>
                 <th>Percent</th>
             </tr>
         </thead>
-        <tbody id="results_table">
-            
-        </tbody>
+        <tbody id="results_table" />
     </table>
 </div>
 
@@ -36,29 +47,30 @@ crossorigin="anonymous">
 
 // UI element ids
 const TABLE_ID = "results_table";
+const NUM_DOORS_ID = "txt_num_doors";
+const NUM_ITERATIONS_ID = "txt_num_iterations";
 
-const COLUMNS = ["number", "value", "count", "percent"];
-
-let num_doors = 3;
-let iterations = 3000;
-
-// run code
-main(num_doors, iterations);
+const COLUMNS = ["number", "count", "percent"];
 
 
-//================ HELPERS ======================
 
-function main(num_doors, iterations){
+//================ PROBABILITY TABLE ======================
 
+function fillTable(){
+
+    let num_doors = document.getElementById(NUM_DOORS_ID).value;
+    let iterations = document.getElementById(NUM_ITERATIONS_ID).value;
+
+    clearTable();
     buildTable(num_doors);
 
     let door_values = {};
     let door_counts = createCounts(num_doors);
 
     door_values = getDoorValues(num_doors);
-    
-    for(let i = 1; i <= iterations; i++){
-        
+
+    for (let i = 1; i <= iterations; i++) {
+
         door_values = getDoorValues(num_doors);
         door_counts = updateCounts(door_counts, door_values);
     }
@@ -67,10 +79,17 @@ function main(num_doors, iterations){
     //writeValues(door_values);
     writeValues(door_counts);
     writeValues(door_percents);
+
+}
+
+function clearTable(){
+    let table = document.getElementById(TABLE_ID);
+    table.innerHTML = "";
+
 }
 
 function buildTable(num){
-    for(i = 1; i <= num; i++){
+    for(let i = 1; i <= num; i++){
         buildRow(i);          
     }
 
@@ -103,6 +122,7 @@ function writeValues(obj){
     }
 }
 
+// string formatted percents
 function createPercents(counts){
 
     let perc = {};
@@ -116,7 +136,10 @@ function createPercents(counts){
             total += counts[count_key];
             
         }
-    }    
+    }
+
+    // create inner object to preserve numerical values
+    let values = {};
 
     row = 0;
     for (key in counts) {
@@ -124,9 +147,13 @@ function createPercents(counts){
         let count_key = idKey("count", row);
         let perc_key = idKey("percent", row);
         if (counts.hasOwnProperty(count_key)) {
-            perc[perc_key] = total > 0 ? counts[count_key] / total * 100 : 0;            
+            let num = total > 0 ? counts[count_key] / total * 100 : 0;
+            values[perc_key] = num;
+            perc[perc_key] = num.toFixed(2) + "%";            
         }
     }
+
+    perc["values"] = values;
 
     return perc;
 }
@@ -174,6 +201,8 @@ function getDoorValues(num) {
 
     return values;
 }
+
+//============== GENERIC HELPERS ======================
 
 // random number between first and second inclusive
 function rand(first, second){
