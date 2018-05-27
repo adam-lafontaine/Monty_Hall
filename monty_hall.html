@@ -260,17 +260,20 @@ function rand(first, second){
     return Math.floor((Math.random() * max) + min);
 }
 
-function create(e_type, id){
-    let element = document.createElement(e_type);
+// creates a dom element with an id
+function create(tag, id){
+    let element = document.createElement(tag);
     element.setAttribute('id', id);
 
     return element;
 }
 
+// generates an id for a row in the table
 function rowId(num){
-    return "row_" + num;
+    return "row_" + num; 
 }
 
+// generates an id for a table cell or object
 function idKey(type, num){
     return type + "_" + num;
 }
