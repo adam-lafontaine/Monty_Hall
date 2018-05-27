@@ -45,7 +45,8 @@ crossorigin="anonymous">
 
 <script>
 
-// UI element ids
+//============ CONSTANTS ===============================
+
 const TABLE_ID = "results_table";
 const NUM_DOORS_ID = "txt_num_doors";
 const NUM_ITERATIONS_ID = "txt_num_iterations";
@@ -56,6 +57,9 @@ const COLUMNS = ["number", "count", "percent"];
 
 //================ PROBABILITY TABLE ======================
 
+/*
+Populates the Probability Table 
+*/
 function fillTable(){
 
     let num_doors = document.getElementById(NUM_DOORS_ID).value;
@@ -82,12 +86,14 @@ function fillTable(){
 
 }
 
+// deletes all values from the probability table
 function clearTable(){
     let table = document.getElementById(TABLE_ID);
     table.innerHTML = "";
 
 }
 
+// Add rows to the probability table 
 function buildTable(num){
     for(let i = 1; i <= num; i++){
         buildRow(i);          
@@ -95,6 +101,10 @@ function buildTable(num){
 
 }
 
+/*
+Creates a new row in the probability table with
+each cell given a unique id
+*/
 function buildRow(row_num){
     let row_id = rowId(row_num);
     let row = create('tr', row_id);
@@ -114,6 +124,10 @@ function buildRow(row_num){
     table.appendChild(row);
 }
 
+/*
+Writes values to the appropriate cells in the table.
+Object keys are the same as the cell's id
+*/
 function writeValues(obj){
 
     for(key in obj){
@@ -122,7 +136,19 @@ function writeValues(obj){
     }
 }
 
-// string formatted percents
+/*
+String formatted percents from a counts object
+{
+    "percent_1" : "33.33%",
+    "percent_2" : "31.51%",
+    "percent_3" : "35.16%",
+    "values" : {
+        "percent_1" : 0.3333,
+        "percent_2" : 0.3151,
+        "percent_3" : 0.3516
+    }
+}
+*/
 function createPercents(counts){
 
     let perc = {};
@@ -158,6 +184,16 @@ function createPercents(counts){
     return perc;
 }
 
+/*
+Creates counts object with values initialized to 0
+Used for tracing the total number of times each door
+in the table had the prize
+{
+    "count_1" : 0,
+    "count_2" : 0,
+    "count_3" : 0
+}
+*/
 function createCounts(num){
     let obj = {};
 
@@ -169,6 +205,7 @@ function createCounts(num){
     return obj;
 }
 
+// updates the counts object with a new set of values
 function updateCounts(counts, values){
 
     let row = 0;
@@ -185,7 +222,14 @@ function updateCounts(counts, values){
     return counts;
 }
 
-// puts a prize behind one of the doors
+/*
+Puts a prize behind one of the doors
+{
+    "value_1" : false,
+    "value_2" : true,
+    "value_3" : false
+}
+*/
 function getDoorValues(num) {
 
     let values = {};
