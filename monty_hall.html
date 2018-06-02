@@ -18,11 +18,11 @@ crossorigin="anonymous">
     <div class="form-group row">
         <div class="col-xs-2">
             <label for="txt_num_doors"># of doors</label>
-            <input type="text" class="form-control" id="txt_num_doors" value="3" >
+            <input type="text" class="form-control" id="txt_num_doors_table" value="3" >
         </div>
         <div class="col-xs-2">
             <label for="txt_num_iterations"># of iterations</label>
-            <input type="text" class="form-control" id="txt_num_iterations" value="3000" >
+            <input type="text" class="form-control" id="txt_num_iter_table" value="3000" >
         </div>
         <div class="col-xs-1">
             <label style="color: #fff" >spacer</label>
@@ -39,6 +39,27 @@ crossorigin="anonymous">
         </thead>
         <tbody id="results_table" />
     </table>
+    <h3>Simulation</h3>
+    <div class="form-group row">
+        <div class="col-xs-2">
+            <label for="txt_num_doors_sim"># of doors</label>
+            <input type="text" class="form-control" id="txt_num_doors_sim" value="3">
+        </div>
+        <div class="col-xs-2">
+            <label for="txt_num_iter_sim"># of iterations</label>
+            <input type="text" class="form-control" id="txt_num_iter_sim" value="3000">
+        </div>
+        <div class="col-xs-1">
+            <label style="color: #fff">spacer</label>
+            <button type="button" class="btn btn-primary" id="btn_run_sim" onclick="runSimulation()">Go</button>
+        </div>
+    </div>
+    <div class="form-group row">
+        <div class="col-xs-2">
+            <label for="txt_sim_result">Result</label>
+            <input type="text" class="form-control" id="txt_sim_result">
+        </div>
+    </div>
 </div>
 
 
@@ -48,10 +69,74 @@ crossorigin="anonymous">
 //============ CONSTANTS ===============================
 
 const TABLE_ID = "results_table";
-const NUM_DOORS_ID = "txt_num_doors";
-const NUM_ITERATIONS_ID = "txt_num_iterations";
-
+const NUM_DOORS_ID = "txt_num_doors_table";
+const NUM_ITERATIONS_ID = "txt_num_iter_table";
 const COLUMNS = ["number", "count", "percent"];
+
+const SIM_NUM_DOORS_ID = "txt_num_doors_sim";
+const SIM_NUM_ITERATIONS_ID = "txt_num_iter_sim";
+const SIM_RESULT_ID = "txt_sim_result";
+
+//=============== SIMULATION ==============================
+
+function runSimulation(){
+    let num_doors = document.getElementById(SIM_NUM_DOORS_ID).value;
+    let iterations = document.getElementById(SIM_NUM_ITERATIONS_ID).value;
+
+    let success_count = 0;
+
+    for (let i = 1; i <= iterations; i++) {
+
+        // make doors, one with prize
+        let door_values = getDoorValues(num_doors);
+
+        // contestant picks one of the doors (use random)
+        let keys = Object.keys(door_values);
+        let first_choice = chooseRandom(keys);
+
+        // give contestant final two options
+        let options = finalOptions(door_values, first_choice);
+
+        // contestant chooses other option, should be 67% success
+        let second_choice = options.filter((opt) => { return opt != first_choice; });
+
+        if(door_values[second_choice])
+            success_count++;
+    }
+
+    // % success
+    let result = (success_count / iterations).toFixed(2) + "%";
+    document.getElementById(SIM_RESULT_ID).value = result;
+
+}
+
+// return array with customers first choice and one other
+// one will have the prize and the other not
+function finalOptions(door_values, choice){
+    let keys = Object.keys(door_values);
+    let no_prize_keys = keys.filter((key) => { return !door_values[key]; });
+    let prize_key = keys.filter((key) => { return door_values[key]; })[0];
+
+    let array = [choice];
+    
+    if(door_values[choice]) { // if choice has the prize, pick another with no prize
+        array.push(chooseRandom(no_prize_keys));
+    }
+    else { // if it does not have the prize, add the door with the prize
+        array.push(prize_key);
+    }
+
+    return array;
+}
+
+// randomly chooses a value from an array
+function chooseRandom(array){
+    let min = 0;
+    let max = array.length - 1;
+    let idx = rand(min, max);
+
+    return array[idx];
+}
 
 
 
